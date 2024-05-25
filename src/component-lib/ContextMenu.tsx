@@ -1,6 +1,6 @@
 import {createMemo, JSX, Show} from "solid-js"
 import {keyframes} from "solid-styled-components"
-import {css, removeValue} from "~/utils"
+import {css, removeValue, unwrap} from "~/utils"
 import {ListItems} from "./ListItems"
 import {SimplePopover} from "./Popover"
 
@@ -19,10 +19,10 @@ export function ContextMenu<T>(
     children: JSX.Element
     self?: T
     other?: T[]
-    entries: MenuEntry<T>[]
+    entries: MenuEntry<T>[] | (() => MenuEntry<T>[])
   },
 ) {
-  const entries = createMemo(() => props.entries.filter(entry => !entry.hidden))
+  const entries = createMemo(() => unwrap(props.entries).filter(entry => !entry.hidden))
 
   return (
     <Show when={entries().length > 0} fallback={props.children}>
