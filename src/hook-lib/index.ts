@@ -50,8 +50,8 @@ export function useElementPosition(elem: () => HTMLElement | SVGElement | undefi
   const updatePosition = () => setPosition(getPosition())
 
   createEffect(on(elem, updatePosition))
-  useEventListener(window, "scroll", updatePosition, true)
   useEventListener(window, "wheel", updatePosition, true)
+  useEventListener(window, "scroll", updatePosition, true)
   useEventListener(window, "resize", updatePosition, true)
 
   return position
@@ -64,24 +64,14 @@ export function useElementSize(elem: () => HTMLElement | SVGElement | undefined)
   }
 
   const [size, setSize] = createSignal(getSize(), {equals})
-  let observedElement: HTMLElement | SVGElement | undefined
-  let resizeObserver: ResizeObserver
 
   createEffect(on(elem, elem => {
-    if (!elem) {
-      setSize(getSize())
-      resizeObserver?.disconnect()
-    } else if (elem !== observedElement) {
-      const ro = new ResizeObserver(() => setSize(getSize()))
-      ro.observe(elem)
-      setSize(getSize())
-      resizeObserver?.disconnect()
-      resizeObserver = ro
-    }
-    observedElement = elem
+    setSize(getSize())
+    if (!elem) return
+    const ro = new ResizeObserver(() => setSize(getSize()))
+    ro.observe(elem)
+    onCleanup(() => ro.disconnect())
   }))
-
-  onCleanup(() => resizeObserver?.disconnect())
 
   return size
 }

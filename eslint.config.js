@@ -8,7 +8,7 @@ export default [{
     ecmaVersion: 12,
     sourceType: "module",
   },
-  files: ["**/*.js", "**/*.ts", "**/*.tsx"],
+  files: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.cts"],
   plugins: {
     "@stylistic": StylisticPlugin,
     "simple-import-sort": SimpleImportSortPlugin,

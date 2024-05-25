@@ -40,7 +40,7 @@ export function dropNulls<T>(array: (T | null | undefined)[]): T[] {
   return array.filter(filterNull)
 }
 
-export const dropObjectNulls = <T extends string, U>(obj: Record<T, U | null>): Record<T, U> => {
+export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null>): Record<T, U> {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null)) as Record<T, U>
 }
 

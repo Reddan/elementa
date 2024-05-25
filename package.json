@@ -1,6 +1,6 @@
 {
   "name": "elementa",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
@@ -11,8 +11,12 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Reddan/elementa.git"
+  },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.1.0",
