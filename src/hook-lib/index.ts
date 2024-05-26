@@ -11,7 +11,7 @@ export * from "./useScrollTo"
 export * from "./mousePosition"
 export * from "./mouseHeld"
 
-export const usePrevious = <T>(value: () => T): () => T => {
+export function usePrevious<T>(value: () => T): () => T {
   const stack = createMemo<[T, T]>(prev => {
     const v = value()
     return v === prev[0] ? prev : [v, prev[0]]
@@ -35,7 +35,7 @@ export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefin
   const updatePosition = () => setPosition(getPosition())
 
   createEffect(on(elem, updatePosition))
-  useEventListener(elem, "scroll", updatePosition)
+  useEventListener(elem, "scroll", updatePosition, true)
 
   return position
 }

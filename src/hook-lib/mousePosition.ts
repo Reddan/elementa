@@ -5,18 +5,19 @@ import {createMemo, createSignal} from "solid-js"
 const [relativeMousePos, setRelativeMousePos] = createSignal({x: 0, y: 0})
 const [scrollPos, setScrollPos] = createSignal({left: 0, top: 0})
 
-const onMouseEvent = (evt: MouseEvent) => {
+function onMouseEvent(evt: MouseEvent) {
   setRelativeMousePos({x: evt.clientX, y: evt.clientY})
 }
 
-const onScroll = () => {
+function onScroll() {
   setScrollPos({left: window.scrollX, top: window.scrollY})
 }
 
-window.addEventListener("mousemove", onMouseEvent)
-window.addEventListener("mouseover", onMouseEvent)
-window.addEventListener("scroll", onScroll)
-window.addEventListener("resize", onScroll)
+window.addEventListener("mousemove", onMouseEvent, true)
+window.addEventListener("mouseover", onMouseEvent, true)
+window.addEventListener("mousedown", onMouseEvent, true)
+window.addEventListener("scroll", onScroll, true)
+window.addEventListener("resize", onScroll, true)
 
 export const mousePosition = createMemo<{x: number, y: number}>(prev => {
   const {x, y} = relativeMousePos()

@@ -28,6 +28,10 @@ export const getKeys: <K extends keyof any>(obj: Partial<Record<K, unknown>>) =>
 
 export const getEntries: <K extends keyof any, V>(obj: Partial<Record<K, V>>) => [K, V][] = Object.entries
 
+export function flatObjects<T extends Record<any, any>>(objects: T[]): T {
+  return Object.assign({}, ...objects)
+}
+
 export function isEither<T extends Primitive, U extends T>(value: T, compare: U[]): value is U {
   return compare.includes(<U>value)
 }
