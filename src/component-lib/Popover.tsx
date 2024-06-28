@@ -213,11 +213,14 @@ export function SimplePopover(
     content: JSX.Element | ((props: {close: () => void}) => JSX.Element)
     children: JSX.Element | ((props: {close: () => void, open: () => boolean}) => JSX.Element)
 
+    anchor?: Element
     inheritWidth?: boolean
+    disabled?: boolean
     class?: string
   },
 ): JSX.Element {
-  const [open, setOpen] = createSignal(false)
+  const [openInner, setOpen] = createSignal(false)
+  const open = () => openInner() && !props.disabled
   const close = () => setOpen(false)
   const childInner = children(() => unwrap(props.children, {close, open}))
   const child = () => childInner()?.valueOf() as Element
@@ -228,7 +231,7 @@ export function SimplePopover(
       when={open()}
       placement={props.placement ?? "mouse"}
       triggers={[{elem: child(), event: props.triggerType ?? "hover", setOpen}]}
-      anchor={child()}
+      anchor={props.anchor ?? child()}
       content={content()}
       inheritWidth={props.inheritWidth}
       class={props.class}

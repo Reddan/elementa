@@ -1,4 +1,4 @@
-import {createEffect, createSignal, JSX, onCleanup, splitProps} from "solid-js"
+import {ComponentProps, createEffect, createSignal, onCleanup, splitProps} from "solid-js"
 import {styled} from "solid-styled-components"
 
 const Container = styled.input`
@@ -19,17 +19,17 @@ const Container = styled.input`
   }
 `
 
-type Props = Omit<JSX.IntrinsicElements["input"], "value" | "onInput" | "ref"> & {
-  value: string
-  onInput?: (value: string) => void
-  onInputRaw?: (evt: InputEvent) => void
-  autoWidth?: boolean
-  rewrite?: (value: string) => string
-  debounce?: number
-  ref?: (elem: HTMLInputElement) => void
-}
-
-export function Input(props: Props) {
+export function Input(
+  props: Omit<ComponentProps<"input">, "value" | "onInput" | "ref"> & {
+    value: string
+    onInput?: (value: string) => void
+    onInputRaw?: (evt: InputEvent) => void
+    autoWidth?: boolean
+    rewrite?: (value: string) => string
+    debounce?: number
+    ref?: (elem: HTMLInputElement) => void
+  },
+) {
   const [local, others] = splitProps(props, ["value", "onInput", "onInputRaw", "autoWidth", "rewrite", "debounce", "ref"])
   const [value, setValue] = createSignal(local.value)
   const [input, setInput] = createSignal<HTMLInputElement>(document.createElement("input"))

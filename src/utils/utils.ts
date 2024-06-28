@@ -9,6 +9,10 @@ export function isFunction(x: unknown): x is Function {
   return typeof x === "function"
 }
 
+export function createId(): string {
+  return crypto.randomUUID().replaceAll("-", "")
+}
+
 export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...args: A): T {
   return isFunction(value) ? value(...args) : value
 }
@@ -52,8 +56,8 @@ export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[]
   const length = Math.min(...arrays.map(arr => arr.length))
   const indices = Array.from({length: arrays.length}, (_, i) => i)
   return Array.from({length}, (_, i) => {
-    return indices.map(j => arrays[j]![i]!)
-  }) as Zipped<Arrays>[]
+    return indices.map(j => arrays[j]![i]!) as Zipped<Arrays>
+  })
 }
 
 export function unique<T extends any[]>(arr: T): T {

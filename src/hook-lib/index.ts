@@ -14,14 +14,17 @@ export * from "./mouseHeld"
 export function usePrevious<T>(value: () => T): () => T {
   const stack = createMemo<[T, T]>(prev => {
     const v = value()
-    return v === prev[0] ? prev : [v, prev[0]]
-  }, [value(), value()])
+    return !prev
+      ? [v, v]
+      : v === prev[0] ? prev : [v, prev[0]]
+  })
   return () => stack()[1]
 }
 
 export function useMostRecent<T>(value: () => T): () => T {
   return createMemo<T>(prev => {
-    return value() !== undefined && value() !== null ? value() : prev
+    const v = value()
+    return v !== undefined && v !== null ? v : prev
   }, value())
 }
 
@@ -74,4 +77,19 @@ export function useElementSize(elem: () => HTMLElement | SVGElement | undefined)
   }))
 
   return size
+}
+
+export function useOnScreen(elem: () => HTMLElement | SVGElement | undefined, rootMargin = "0px") {
+  const [isIntersecting, setIntersecting] = createSignal(false)
+
+  createEffect(on(elem, elem => {
+    setIntersecting(false)
+    if (elem) {
+      const io = new IntersectionObserver(entries => setIntersecting(entries.at(-1)!.isIntersecting), {rootMargin})
+      io.observe(elem)
+      onCleanup(() => io.disconnect())
+    }
+  }))
+
+  return isIntersecting
 }
