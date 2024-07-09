@@ -1,6 +1,6 @@
 {
   "name": "elementa",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
@@ -16,7 +16,8 @@
     "url": "git+ssh://git@github.com/Reddan/elementa.git"
   },
   "scripts": {
-    "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'"
+    "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'",
+    "publish": "npm run build && npm version patch && npm publish"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.1.0",
