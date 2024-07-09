@@ -5,9 +5,8 @@
 import {children, createEffect, createSignal, JSX, on, onCleanup, onMount, Show} from "solid-js"
 import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
-import {round} from "lodash"
 import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/hook-lib"
-import {unwrap} from "~/utils"
+import {round, unwrap} from "~/utils"
 
 export type PopoverPlacement = "initial-mouse" | "mouse" | "bottom" | "left" | "right" | "top" | "bottom-left" | "bottom-right"
 

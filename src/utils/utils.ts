@@ -17,15 +17,25 @@ export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...ar
   return isFunction(value) ? value(...args) : value
 }
 
-export function cumsum(arr: number[]): number[] {
-  let sum = 0
-  return arr.map(num => sum += num)
+export function round(number: number, precision = 0) {
+  if (!precision) {
+    return Math.round(number)
+  }
+  const pair1 = `${number}e`.split("e") as [string, string]
+  const value = Math.round(+`${pair1[0]}e${+pair1[1] + precision}`)
+  const pair2 = `${value}e`.split("e") as [string, string]
+  return +`${pair2[0]}e${+pair2[1] - precision}`
 }
 
 export function clamp(num: number, lower: number, upper: number): number {
   return isNaN(num) || isNaN(lower) || isNaN(upper)
     ? NaN
     : num > upper ? upper : num < lower ? lower : num
+}
+
+export function cumsum(arr: number[]): number[] {
+  let sum = 0
+  return arr.map(num => sum += num)
 }
 
 export const getKeys: <K extends keyof any>(obj: Partial<Record<K, unknown>>) => K[] = Object.keys

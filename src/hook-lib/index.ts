@@ -1,6 +1,6 @@
 import {createEffect, createMemo, createSignal, on, onCleanup} from "solid-js"
 import equals from "fast-deep-equal"
-import {round} from "lodash"
+import {round} from "~/utils"
 import {useEventListener} from "./useEventListener"
 
 export * from "./createLocalSignal"
