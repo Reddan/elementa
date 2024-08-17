@@ -9,6 +9,7 @@ export default [{
     sourceType: "module",
   },
   files: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.cts"],
+  ignores: ["dist/**/*.js", "dist/**/*.cjs"],
   plugins: {
     "@stylistic": StylisticPlugin,
     "simple-import-sort": SimpleImportSortPlugin,

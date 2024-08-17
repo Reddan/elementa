@@ -1,9 +1,9 @@
-import {createComputed, JSX, mapArray} from "solid-js"
+import {createRenderEffect, JSX, mapArray} from "solid-js"
 
 // TODO: ZipFor component (keyed by first array)
 
 export function forEachArray<T>(arr: () => T[], fn: (x: T) => void) {
-  createComputed(mapArray(arr, fn))
+  createRenderEffect(mapArray(arr, fn))
 }
 
 export function when<T, U>(value: () => T | undefined, cb: (x: T) => U) {

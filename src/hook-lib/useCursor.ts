@@ -11,7 +11,7 @@ createEffect(() => {
   document.body.style.cursor = cursor ?? ""
 })
 
-export function useCursor(cursor: () => string | null | undefined | false) {
+export function useCursor(cursor: () => string | null | undefined | false): void {
   // cursor = createMemo(cursor)
   createEffect(on(cursor, name => {
     if (name) {

@@ -14,7 +14,7 @@ export function useScrollTo(
   ref: () => HTMLElement | undefined,
   active: () => boolean,
   {smooth = true}: {smooth?: boolean} = {},
-) {
+): void {
   createEffect(async () => {
     const elem = ref()
     if (active() && elem && !await isElementVisible(elem)) {

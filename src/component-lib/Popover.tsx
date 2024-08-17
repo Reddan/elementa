@@ -2,11 +2,11 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/popoverTargetAction
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/popoverTargetElement
 
-import {children, createEffect, createSignal, JSX, on, onCleanup, onMount, Show} from "solid-js"
+import {children, createEffect, createRenderEffect, createSignal, JSX, onCleanup, onMount, Show} from "solid-js"
 import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
 import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/hook-lib"
-import {round, unwrap} from "~/utils"
+import {forEachArray, round, unwrap} from "~/utils"
 
 export type PopoverPlacement = "initial-mouse" | "mouse" | "bottom" | "left" | "right" | "top" | "bottom-left" | "bottom-right"
 
@@ -53,6 +53,7 @@ const PopoverContainer = styled.div<{placement: PopoverPlacement, evasive: boole
   padding: 10px;
   color: #000;
   background-color: #fff;
+  backdrop-filter: blur(16px);
   animation: ${appear(props.placement)} 200ms;
   ${props.evasive ? "pointer-events: none;" : ""}
   ${props.evasive ? "user-select: none;" : ""}
@@ -154,52 +155,50 @@ export function StatefulPopover(
   },
 ) {
   const popoverId = {}
+  const content = children(() => props.when && props.content)
   const mount = document.createElement("div")
-  mount.className = ["popover", ...props.triggers.map(trigger => `popover-${trigger.event}`)].join(" ")
 
-  createEffect(on(() => props.triggers, () => {
-    for (const {elem: trigger, event, setOpen} of props.triggers) {
-      if (event === "hover") {
-        useEventListener(window, "mousemove", evt => {
-          setOpen(!mouseHeld() && trigger!.contains(evt.target as Element))
-        })
-      } else {
-        useEventListener(trigger!, event, evt => {
-          if (event === "contextmenu") evt.preventDefault()
-          if (!triggeredPopoverByEvent.has(evt)) {
-            setOpen(!props.when)
-            triggeredPopoverByEvent.set(evt, popoverId)
-          }
-        })
-        createEffect(() => {
-          if (props.when) {
-            useKeyPress("Escape", () => setOpen(false), {stopPropagation: true})
-          }
-        })
-      }
+  createRenderEffect(() => mount.className = ["popover", ...props.triggers.map(trigger => `popover-${trigger.event}`)].join(" "))
 
-      useEventListener(window, "mousedown", evt => {
-        const close = triggeredPopoverByEvent.get(evt) !== popoverId
-          && !mount.contains(evt.target as Element)
-          && (!mount.querySelector(".popover") || triggeredPopoverByEvent.has(evt))
-        if (close) setOpen(false)
+  forEachArray(() => props.triggers, ({elem: trigger, event, setOpen}) => {
+    if (event === "hover") {
+      useEventListener(window, "mousemove", evt => {
+        setOpen(!mouseHeld() && trigger!.contains(evt.target as Element))
+      })
+    } else {
+      useEventListener(trigger!, event, evt => {
+        if (event === "contextmenu") evt.preventDefault()
+        if (!triggeredPopoverByEvent.has(evt)) {
+          setOpen(!props.when)
+          triggeredPopoverByEvent.set(evt, popoverId)
+        }
+      })
+      createEffect(() => {
+        if (props.when) {
+          useKeyPress("Escape", () => setOpen(false), {stopPropagation: true})
+        }
       })
     }
-  }))
+
+    useEventListener(window, "mousedown", evt => {
+      const close = triggeredPopoverByEvent.get(evt) !== popoverId
+        && !mount.contains(evt.target as Element)
+        && (!mount.querySelector(".popover") || triggeredPopoverByEvent.has(evt))
+      if (close) setOpen(false)
+    })
+  })
 
   return (
-    <Show when={props.when && props.content}>
-      {content => (
-        <Popover
-          placement={props.placement}
-          mount={mount}
-          anchor={props.anchor}
-          content={content()}
-          evasive={!!props.triggers.length && props.triggers.every(trigger => trigger.event === "hover")}
-          inheritWidth={props.inheritWidth}
-          class={props.class}
-        />
-      )}
+    <Show when={content()}>
+      <Popover
+        placement={props.placement}
+        mount={mount}
+        anchor={props.anchor}
+        content={content()}
+        evasive={!!props.triggers.length && props.triggers.every(trigger => trigger.event === "hover")}
+        inheritWidth={props.inheritWidth}
+        class={props.class}
+      />
     </Show>
   )
 }
@@ -218,8 +217,8 @@ export function SimplePopover(
     class?: string
   },
 ): JSX.Element {
-  const [openInner, setOpen] = createSignal(false)
-  const open = () => openInner() && !props.disabled
+  const [openState, setOpen] = createSignal(false)
+  const open = () => openState() && !props.disabled
   const close = () => setOpen(false)
   const childInner = children(() => unwrap(props.children, {close, open}))
   const child = () => childInner()?.valueOf() as Element

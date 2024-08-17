@@ -1,7 +1,7 @@
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
 
-export function assert(condition: boolean, message: string = "Assertion failed"): asserts condition {
+export function assert(condition: any, message = "Assertion failed"): asserts condition {
   if (!condition) throw new Error(message)
 }
 
@@ -10,7 +10,11 @@ export function isFunction(x: unknown): x is Function {
 }
 
 export function createId(): string {
-  return crypto.randomUUID().replaceAll("-", "")
+  if (window.isSecureContext) {
+    return crypto.randomUUID().replaceAll("-", "")
+  }
+  const values = [...crypto.getRandomValues(new Uint8Array(32))]
+  return values.map(val => (val & 15).toString(16)).join("")
 }
 
 export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...args: A): T {
@@ -29,12 +33,12 @@ export function isEither<T extends Primitive, U extends T>(value: T, compare: U[
   return compare.includes(<U>value)
 }
 
-export function filterNull<T>(x: T | null | undefined): x is T {
-  return x !== null && x !== undefined
+export function notNull<T>(x: T | null | undefined): x is T {
+  return x != null
 }
 
 export function dropNulls<T>(array: (T | null | undefined)[]): T[] {
-  return array.filter(filterNull)
+  return array.filter(notNull)
 }
 
 export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null>): Record<T, U> {
@@ -42,15 +46,27 @@ export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null>): 
 }
 
 export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[] {
-  const length = Math.min(...arrays.map(arr => arr.length))
-  const indices = Array.from({length: arrays.length}, (_, i) => i)
+  const length = Math.min(...arrays.map(array => array.length))
+  const indices = Array.from({length: arrays.length}, (_, j) => j)
   return Array.from({length}, (_, i) => {
     return indices.map(j => arrays[j]![i]!) as Zipped<Arrays>
   })
 }
 
-export function unique<T extends any[]>(arr: T): T {
-  return [...new Set(arr)] as T
+const sortNumbers = (a?: number, b?: number) => a! - b!
+
+export function sort<T extends any[]>(array: T): T {
+  const type = typeof array.find(notNull)
+  const sortFn = isEither(type, ["boolean", "number", "bigint"]) ? sortNumbers : undefined
+  return array.toSorted(sortFn) as T
+}
+
+export function unique<T extends any[]>(array: T): T {
+  return [...new Set(array)] as T
+}
+
+export function sortUnique<T extends any[]>(array: T): T {
+  return sort(unique(array))
 }
 
 function indexFromNegative(array: any[], index: number) {
@@ -86,6 +102,20 @@ export function removeValue<T>(array: T[], value: T): T[] {
 export function toggleValue<T>(values: T[], toggleValue: T): T[] {
   const filtered = values.filter(val => val !== toggleValue)
   return filtered.length === values.length ? [...values, toggleValue] : filtered
+}
+
+export function mapObject<K extends string, T, U>(obj: Record<K, T>, fn: (value: T, key: K) => U): Record<K, U> {
+  const result = {} as Record<K, U>
+  for (const key of getKeys(obj))
+    result[key] = fn(obj[key], key)
+  return result
+}
+
+export function mapMap<K, T, U>(obj: Map<K, T>, fn: (value: T, key: K) => U): Map<K, U> {
+  const result = new Map<K, U>()
+  for (const [key, value] of obj.entries())
+    result.set(key, fn(value, key))
+  return result
 }
 
 export function groupFromEntries<K extends string, T>(entries: Iterable<readonly [K, T]>): Record<K, T[]> {

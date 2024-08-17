@@ -28,7 +28,7 @@ export function useKeyPress(
   key: string | (() => string),
   callback: (evt: KeyboardEvent) => void,
   {eventName = "keydown", stopPropagation = false, disableFor = 0, ignoreInputs = true}: KeyPressOptions = {},
-) {
+): void {
   const self = {stopPropagation}
   let disabledUntil = 0
 

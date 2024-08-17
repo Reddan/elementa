@@ -1,4 +1,4 @@
-type TypedArray =
+export type TypedArray =
   | Int8Array
   | Uint8Array
   | Uint8ClampedArray
@@ -8,15 +8,12 @@ type TypedArray =
   | Uint32Array
   | Float32Array
   | Float64Array
-  // | BigInt64Array
-  // | BigUint64Array
 
-type NumberArray = number[] | TypedArray
+export type NumberArray = number[] | TypedArray
 
 export function round(number: number, precision = 0) {
-  if (!precision) {
+  if (!precision)
     return Math.round(number)
-  }
   const pair1 = `${number}e`.split("e") as [string, string]
   const value = Math.round(+`${pair1[0]}e${+pair1[1] + precision}`)
   const pair2 = `${value}e`.split("e") as [string, string]
@@ -24,46 +21,43 @@ export function round(number: number, precision = 0) {
 }
 
 export function clamp(num: number, lower: number, upper: number): number {
-  return isNaN(num) || isNaN(lower) || isNaN(upper)
-    ? NaN
-    : num > upper ? upper : num < lower ? lower : num
+  if (isNaN(num) || isNaN(lower) || isNaN(upper))
+    return NaN
+  return num > upper ? upper : num < lower ? lower : num
 }
 
-export function sum(arr: NumberArray): number {
-  return (arr as number[]).reduce((a, b) => a + b, 0)
-}
-
-export function mean(arr: NumberArray): number {
-  return sum(arr) / arr.length
-}
-
-export function max(arr: NumberArray): number {
-  if (!arr.length) {
-    return 0
-  }
-  let max = -Infinity
-  for (const num of arr) {
-    if (num > max) {
-      max = num
-    }
-  }
-  return max
-}
-
-export function min(arr: NumberArray): number {
-  if (!arr.length) {
-    return 0
-  }
-  let min = Infinity
-  for (const num of arr) {
-    if (num < min) {
-      min = num
-    }
-  }
-  return min
-}
-
-export function cumsum<T extends NumberArray>(arr: T): T {
+export function sum(array: NumberArray): number {
   let sum = 0
-  return arr.map(num => sum += num) as T
+  for (const number of array)
+    sum += number
+  return sum
+}
+
+export function mean(array: NumberArray): number {
+  const len = array.length
+  return len && sum(array) / len
+}
+
+export function min(array: NumberArray): number {
+  return extent(array)[0]
+}
+
+export function max(array: NumberArray): number {
+  return extent(array)[1]
+}
+
+export function extent(array: NumberArray): [number, number] {
+  if (!array.length) return [0, 0]
+  let min = Infinity
+  let max = -Infinity
+  for (const num of array) {
+    if (num < min) min = num
+    if (num > max) max = num
+  }
+  return [min, max]
+}
+
+export function cumsum<T extends NumberArray>(array: T): T {
+  let sum = 0
+  return array.map(num => sum += num) as T
 }

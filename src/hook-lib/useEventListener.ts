@@ -1,4 +1,4 @@
-import {createEffect, onCleanup} from "solid-js"
+import {createEffect, createRoot, onCleanup} from "solid-js"
 import {unwrap} from "~/utils"
 
 type Element = {
@@ -34,11 +34,14 @@ export function useEventListener<Elem extends Element, Type extends EventType<El
   type: Type,
   listener: (evt: Event<Elem, Type>) => void,
   options?: boolean | AddEventListenerOptions,
-) {
+): void {
   createEffect(() => {
     const targetElement = unwrap(element)
     if (targetElement) {
-      onCleanup(radEventListener(targetElement, type, listener, options))
+      const unsub = radEventListener(targetElement, type, evt => {
+        return createRoot(() => listener(evt))
+      }, options)
+      onCleanup(unsub)
     }
   })
 }

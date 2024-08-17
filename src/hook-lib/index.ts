@@ -1,4 +1,4 @@
-import {createEffect, createMemo, createSignal, on, onCleanup} from "solid-js"
+import {createMemo, createRenderEffect, createSignal, on, onCleanup} from "solid-js"
 import equals from "fast-deep-equal"
 import {round} from "~/utils"
 import {useEventListener} from "./useEventListener"
@@ -10,6 +10,9 @@ export * from "./useKeyPress"
 export * from "./useScrollTo"
 export * from "./mousePosition"
 export * from "./mouseHeld"
+
+type XY = {x: number, y: number}
+type WH = {width: number, height: number}
 
 export function usePrevious<T>(value: () => T): () => T {
   const stack = createMemo<[T, T]>(prev => {
@@ -28,7 +31,7 @@ export function useMostRecent<T>(value: () => T): () => T {
   }, value())
 }
 
-export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefined) {
+export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefined): () => XY {
   const getPosition = () => {
     const {scrollLeft, scrollTop} = (elem() ?? document.createElement("div"))
     return {x: scrollLeft, y: scrollTop}
@@ -37,13 +40,13 @@ export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefin
   const [position, setPosition] = createSignal(getPosition(), {equals})
   const updatePosition = () => setPosition(getPosition())
 
-  createEffect(on(elem, updatePosition))
+  createRenderEffect(on(elem, updatePosition))
   useEventListener(elem, "scroll", updatePosition, true)
 
   return position
 }
 
-export function useElementPosition(elem: () => HTMLElement | SVGElement | undefined) {
+export function useElementPosition(elem: () => HTMLElement | SVGElement | undefined): () => XY {
   const getPosition = () => {
     const {left, top} = (elem() ?? document.createElement("div")).getBoundingClientRect()
     return {x: left + window.scrollX, y: top + window.scrollY}
@@ -52,7 +55,7 @@ export function useElementPosition(elem: () => HTMLElement | SVGElement | undefi
   const [position, setPosition] = createSignal(getPosition(), {equals})
   const updatePosition = () => setPosition(getPosition())
 
-  createEffect(on(elem, updatePosition))
+  createRenderEffect(on(elem, updatePosition))
   useEventListener(window, "wheel", updatePosition, true)
   useEventListener(window, "scroll", updatePosition, true)
   useEventListener(window, "resize", updatePosition, true)
@@ -60,7 +63,7 @@ export function useElementPosition(elem: () => HTMLElement | SVGElement | undefi
   return position
 }
 
-export function useElementSize(elem: () => HTMLElement | SVGElement | undefined) {
+export function useElementSize(elem: () => HTMLElement | SVGElement | undefined): () => WH {
   const getSize = () => {
     const {width, height} = (elem() ?? document.createElement("div")).getBoundingClientRect()
     return {width: round(width, 1), height: round(height, 1)}
@@ -68,7 +71,7 @@ export function useElementSize(elem: () => HTMLElement | SVGElement | undefined)
 
   const [size, setSize] = createSignal(getSize(), {equals})
 
-  createEffect(on(elem, elem => {
+  createRenderEffect(on(elem, elem => {
     setSize(getSize())
     if (!elem) return
     const ro = new ResizeObserver(() => setSize(getSize()))
@@ -79,10 +82,10 @@ export function useElementSize(elem: () => HTMLElement | SVGElement | undefined)
   return size
 }
 
-export function useOnScreen(elem: () => HTMLElement | SVGElement | undefined, rootMargin = "0px") {
+export function useOnScreen(elem: () => HTMLElement | SVGElement | undefined, rootMargin = "0px"): () => boolean {
   const [isIntersecting, setIntersecting] = createSignal(false)
 
-  createEffect(on(elem, elem => {
+  createRenderEffect(on(elem, elem => {
     setIntersecting(false)
     if (elem) {
       const io = new IntersectionObserver(entries => setIntersecting(entries.at(-1)!.isIntersecting), {rootMargin})

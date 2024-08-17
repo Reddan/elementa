@@ -19,7 +19,7 @@ export const Selectable = styled.button<{selected?: boolean, disabled?: boolean}
   padding: 10px 20px;
   font-size: 13px;
   text-align: left;
-  color: ${props.selected ? "#000" : "rgb(84, 84, 84)"};
+  color: ${props.selected ? "#000" : "#545454"};
   font-weight: ${props.selected ? "bold" : "inherit"};
   border-bottom: 1px solid #f5f5f5;
   cursor: pointer;
