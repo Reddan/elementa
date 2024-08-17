@@ -1,9 +1,7 @@
 import {createMemo} from "solid-js"
-import {keyframes, styled} from "solid-styled-components"
+import {styled} from "solid-styled-components"
 import {ListItems, PopoverPlacement, SimplePopover} from "~/component-lib"
 import {css} from "~/utils"
-
-const preventClick = keyframes`from {pointer-events: none;}`
 
 const Input = styled.div`
   display: flex;
@@ -58,7 +56,7 @@ export function Dropdown<T>(
         <ListItems
           selected={[props.value]}
           items={props.options.map((option, i) => ({value: option, label: stringAliases()[i]!}))}
-          {...css({userSelect: "none", animation: `${preventClick} 300ms`, overflowY: "scroll"})}
+          {...css({userSelect: "none", overflowY: "scroll"})}
           class={(props.class ?? "") + " list-items"}
           onChange={option => {
             props.onChange(option)

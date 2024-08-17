@@ -44,6 +44,8 @@ const appear = (placement: PopoverPlacement) => keyframes`
   }
 `
 
+const preventClick = keyframes`from {pointer-events: none;}`
+
 const PopoverContainer = styled.div<{placement: PopoverPlacement, evasive: boolean}>(props => `
   position: absolute;
   z-index: 4;
@@ -54,7 +56,7 @@ const PopoverContainer = styled.div<{placement: PopoverPlacement, evasive: boole
   color: #000;
   background-color: #fff;
   backdrop-filter: blur(16px);
-  animation: ${appear(props.placement)} 200ms;
+  animation: ${appear(props.placement)} 200ms, ${preventClick} 300ms;
   ${props.evasive ? "pointer-events: none;" : ""}
   ${props.evasive ? "user-select: none;" : ""}
 `)

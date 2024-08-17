@@ -12,7 +12,10 @@ export function createCssvars(prefix: string) {
 }
 
 export function getCssvar(reference: string) {
-  return valueByVar[reference]
+  if (!Object.hasOwn(valueByVar, reference)) {
+    throw new Error(`CSS variable not found: ${reference}`)
+  }
+  return valueByVar[reference]!
 }
 
 export function setCssvar(reference: string, value: string) {

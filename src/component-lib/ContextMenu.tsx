@@ -1,10 +1,7 @@
 import {createMemo, JSX, Show} from "solid-js"
-import {keyframes} from "solid-styled-components"
 import {css, removeValue, unwrap} from "~/utils"
 import {ListItems} from "./ListItems"
 import {SimplePopover} from "./Popover"
-
-const preventClick = keyframes`from {pointer-events: none;}`
 
 export type MenuEntry<T> = {
   label: string
@@ -27,7 +24,7 @@ export function ContextMenu<T>(
   return (
     <Show when={entries().length > 0} fallback={props.children}>
       <SimplePopover
-        {...css({padding: "10px 0", "*": {animation: `${preventClick} 300ms`}})}
+        {...css({padding: "10px 0"})}
         triggerType="contextmenu"
         placement="initial-mouse"
         children={props.children}
