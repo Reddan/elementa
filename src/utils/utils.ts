@@ -45,6 +45,10 @@ export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null>): 
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null)) as Record<T, U>
 }
 
+export function range(start: number, end: number): number[] {
+  return Array.from({length: end - start}, (_, i) => start + i)
+}
+
 export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[] {
   const length = Math.min(...arrays.map(array => array.length))
   const indices = Array.from({length: arrays.length}, (_, j) => j)
