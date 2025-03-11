@@ -53,6 +53,7 @@ export function Modal(
     class?: string
     containerClass?: string
     onClose?: () => void
+    outsideClick?: boolean
   },
 ) {
   createEffect(() => {
@@ -64,7 +65,12 @@ export function Modal(
   return (
     <Show when={props.when ?? true}>
       <Portal mount={portalElem}>
-        <ModalContainer class={props.containerClass}>
+        <ModalContainer
+          class={props.containerClass}
+          onClick={evt => {
+            if (evt.target === evt.currentTarget && props.outsideClick) props.onClose?.()
+          }}
+        >
           <ModalBody class={props.class}>
             {props.children}
           </ModalBody>

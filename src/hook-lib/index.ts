@@ -87,11 +87,10 @@ export function useOnScreen(elem: () => HTMLElement | SVGElement | undefined, ro
 
   createRenderEffect(on(elem, elem => {
     setIntersecting(false)
-    if (elem) {
-      const io = new IntersectionObserver(entries => setIntersecting(entries.at(-1)!.isIntersecting), {rootMargin})
-      io.observe(elem)
-      onCleanup(() => io.disconnect())
-    }
+    if (!elem) return
+    const io = new IntersectionObserver(entries => setIntersecting(entries.at(-1)!.isIntersecting), {rootMargin})
+    io.observe(elem)
+    onCleanup(() => io.disconnect())
   }))
 
   return isIntersecting

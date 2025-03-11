@@ -17,7 +17,7 @@ export const dedupedBatch = <T, U>(callback: (inputs: T[]) => Promise<U[]>) => {
     if (!onOutputByHash[valueHash]) {
       inputByHash[valueHash] = input
       clearTimeout(handleBulkTimeout)
-      handleBulkTimeout = window.setTimeout(() => {
+      handleBulkTimeout = setTimeout(() => {
         const hashes = Object.keys(inputByHash)
         const inputs = hashes.map(valueHash => inputByHash[valueHash]!)
         inputByHash = {}

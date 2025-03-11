@@ -9,6 +9,10 @@ export function isFunction(x: unknown): x is Function {
   return typeof x === "function"
 }
 
+export function isGeneratorFunction<T>(x: unknown): x is () => Generator<T> {
+  return typeof x === "function" && x.constructor.name === "GeneratorFunction"
+}
+
 export function createId(): string {
   if (window.isSecureContext) {
     return crypto.randomUUID().replaceAll("-", "")
@@ -122,9 +126,9 @@ export function mapMap<K, T, U>(obj: Map<K, T>, fn: (value: T, key: K) => U): Ma
   return result
 }
 
-export function groupFromEntries<K extends string, T>(entries: Iterable<readonly [K, T]>): Record<K, T[]> {
+export function groupFromEntries<K extends string, T>(entries: Iterable<readonly [K, T]> | (() => Generator<[K, T]>)): Record<K, T[]> {
   const map = {} as Record<K, T[]>
-  for (const [key, value] of entries) {
+  for (const [key, value] of isGeneratorFunction(entries) ? entries() : entries) {
     map[key] = map[key] ?? []
     map[key].push(value)
   }
@@ -171,6 +175,7 @@ export function readTextFiles(mimeTypes: string[], multiple = false, encoding = 
     input.accept = mimeTypes.join(",")
     input.multiple = multiple
     input.click()
+    input.oncancel = () => resolve([])
     input.onchange = () => {
       const files = Array.from(input.files!)
       const fileContents = files.map(file => {

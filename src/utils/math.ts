@@ -20,6 +20,10 @@ export function round(number: number, precision = 0) {
   return +`${pair2[0]}e${+pair2[1] - precision}`
 }
 
+export function ensureNumber(value: number, fallback: number): number {
+  return isFinite(value) ? value : fallback
+}
+
 export function clamp(num: number, lower: number, upper: number): number {
   if (isNaN(num) || isNaN(lower) || isNaN(upper))
     return NaN

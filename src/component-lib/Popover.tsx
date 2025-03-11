@@ -156,11 +156,13 @@ export function StatefulPopover(
     class?: string
   },
 ) {
-  const popoverId = {}
+  const popoverRef = {}
   const content = children(() => props.when && props.content)
   const mount = document.createElement("div")
 
-  createRenderEffect(() => mount.className = ["popover", ...props.triggers.map(trigger => `popover-${trigger.event}`)].join(" "))
+  createRenderEffect(() => {
+    mount.className = ["popover", ...props.triggers.map(trigger => `popover-${trigger.event}`)].join(" ")
+  })
 
   forEachArray(() => props.triggers, ({elem: trigger, event, setOpen}) => {
     if (event === "hover") {
@@ -169,10 +171,12 @@ export function StatefulPopover(
       })
     } else {
       useEventListener(trigger!, event, evt => {
-        if (event === "contextmenu") evt.preventDefault()
+        if (event === "contextmenu") {
+          evt.preventDefault()
+        }
         if (!triggeredPopoverByEvent.has(evt)) {
           setOpen(!props.when)
-          triggeredPopoverByEvent.set(evt, popoverId)
+          triggeredPopoverByEvent.set(evt, popoverRef)
         }
       })
       createEffect(() => {
@@ -183,7 +187,7 @@ export function StatefulPopover(
     }
 
     useEventListener(window, "mousedown", evt => {
-      const close = triggeredPopoverByEvent.get(evt) !== popoverId
+      const close = triggeredPopoverByEvent.get(evt) !== popoverRef
         && !mount.contains(evt.target as Element)
         && (!mount.querySelector(".popover") || triggeredPopoverByEvent.has(evt))
       if (close) setOpen(false)
