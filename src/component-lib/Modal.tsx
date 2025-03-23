@@ -46,6 +46,8 @@ const ModalBody = styled.div`
   animation: ${slideIn} 150ms;
 `
 
+type CloseBy = "click" | "escape"
+
 export function Modal(
   props: {
     when?: boolean
@@ -53,11 +55,14 @@ export function Modal(
     class?: string
     containerClass?: string
     onClose?: () => void
-    outsideClick?: boolean
+    closeBy?: CloseBy[]
+    style?: JSX.CSSProperties
   },
 ) {
+  const closeBy = () => props.closeBy ?? ["click", "escape"]
+
   createEffect(() => {
-    if (props.onClose) {
+    if (props.when && props.onClose && closeBy().includes("escape")) {
       useKeyPress("Escape", props.onClose, {stopPropagation: true})
     }
   })
@@ -67,11 +72,9 @@ export function Modal(
       <Portal mount={portalElem}>
         <ModalContainer
           class={props.containerClass}
-          onClick={evt => {
-            if (evt.target === evt.currentTarget && props.outsideClick) props.onClose?.()
-          }}
+          onMouseDown={evt => evt.target === evt.currentTarget && closeBy().includes("click") && props.onClose?.()}
         >
-          <ModalBody class={props.class}>
+          <ModalBody class={props.class} style={props.style}>
             {props.children}
           </ModalBody>
         </ModalContainer>

@@ -32,7 +32,11 @@ export function createLocalStore<T extends object>(key: string, initState: T): [
   const [state, setState] = createStore<T>(Object.hasOwn(localStorage, key) ? JSON.parse(localStorage[key]) : initState)
 
   createEffect(() => {
-    localStorage[key] = JSON.stringify(state)
+    if (state === initState) {
+      delete localStorage[key]
+    } else {
+      localStorage[key] = JSON.stringify(state)
+    }
   })
 
   return [state, setState]
