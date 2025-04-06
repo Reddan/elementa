@@ -8,14 +8,16 @@ import {keyframes, styled} from "solid-styled-components"
 import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/hook-lib"
 import {forEachArray, round, unwrap} from "~/utils"
 
-export type PopoverPlacement = "initial-mouse" | "mouse" | "bottom" | "left" | "right" | "top" | "bottom-left" | "bottom-right"
-
 export type Trigger = {
   elem: Element | undefined
   event: "hover" | "click" | "mousedown" | "contextmenu"
   setOpen: (open: boolean) => void
 }
 
+export type PopoverPlacement = "initial-mouse" | "mouse" | "bottom" | "left" | "right" | "top" | "bottom-left" | "bottom-right"
+
+type ForwardProps = {class?: string, inheritWidth?: boolean}
+type StyleProps = {placement: PopoverPlacement, evasive: boolean}
 type Element = HTMLElement | SVGElement
 
 const portalElem = document.getElementById("portal-root")!
@@ -46,7 +48,7 @@ const appear = (placement: PopoverPlacement) => keyframes`
 
 const preventClick = keyframes`from {pointer-events: none;}`
 
-const PopoverContainer = styled.div<{placement: PopoverPlacement, evasive: boolean}>(props => `
+const PopoverContainer = styled.div<{"prop:cssprops": StyleProps}>(({["prop:cssprops"]: props}) => `
   position: absolute;
   z-index: 4;
   box-shadow: 0 1px 45px 0 rgba(137, 137, 137, 0.16);
@@ -57,12 +59,14 @@ const PopoverContainer = styled.div<{placement: PopoverPlacement, evasive: boole
   background-color: #fff;
   backdrop-filter: blur(16px);
   animation: ${appear(props.placement)} 200ms, ${preventClick} 300ms;
-  ${props.evasive ? "pointer-events: none;" : ""}
-  ${props.evasive ? "user-select: none;" : ""}
+  ${props.evasive ? "&" : "_"} {
+    pointer-events: none;
+    user-select: none;
+  }
 `)
 
 export function Popover(
-  props: {
+  props: ForwardProps & {
     placement: PopoverPlacement
 
     mount: HTMLElement
@@ -70,8 +74,6 @@ export function Popover(
     content: JSX.Element
 
     evasive?: boolean
-    inheritWidth?: boolean
-    class?: string
   },
 ) {
   const [popover, setPopover] = createSignal<HTMLDivElement>()
@@ -81,6 +83,7 @@ export function Popover(
   const initialMouse = mousePosition()
   const targetedMouse = () => props.placement === "mouse" ? mousePosition() : initialMouse
   const width = () => props.inheritWidth ? `${anchorSize().width}px` : undefined
+  const initialPlacement = props.placement
 
   const position = () => {
     const {x: mouseX, y: mouseY} = targetedMouse()
@@ -134,26 +137,22 @@ export function Popover(
       <PopoverContainer
         ref={setPopover}
         class={props.class}
-        placement={/*@once*/ props.placement}
-        evasive={!!props.evasive}
-        children={props.content}
+        prop:cssprops={{placement: initialPlacement, evasive: !!props.evasive}}
         style={{...position(), width: width()}}
+        children={props.content}
       />
     </Portal>
   )
 }
 
 export function StatefulPopover(
-  props: {
+  props: ForwardProps & {
     when: boolean
     placement: PopoverPlacement
 
     triggers: Trigger[]
     anchor: Element
     content: JSX.Element
-
-    inheritWidth?: boolean
-    class?: string
   },
 ) {
   const popoverRef = {}
@@ -210,7 +209,7 @@ export function StatefulPopover(
 }
 
 export function SimplePopover(
-  props: {
+  props: ForwardProps & {
     triggerType?: Trigger["event"]
     placement?: PopoverPlacement
 
@@ -218,9 +217,7 @@ export function SimplePopover(
     children: JSX.Element | ((props: {close: () => void, open: () => boolean}) => JSX.Element)
 
     anchor?: Element
-    inheritWidth?: boolean
     disabled?: boolean
-    class?: string
   },
 ): JSX.Element {
   const [openState, setOpen] = createSignal(false)
@@ -230,17 +227,19 @@ export function SimplePopover(
   const child = () => childInner()?.valueOf() as Element
   const content = () => unwrap(props.content, {close})
 
-  void (
-    <StatefulPopover
-      when={open()}
-      placement={props.placement ?? "mouse"}
-      triggers={[{elem: child(), event: props.triggerType ?? "hover", setOpen}]}
-      anchor={props.anchor ?? child()}
-      content={content()}
-      inheritWidth={props.inheritWidth}
-      class={props.class}
-    />
-  )
+  createRenderEffect(() => {
+    if (!props.disabled) (
+      <StatefulPopover
+        when={open()}
+        placement={props.placement ?? "mouse"}
+        triggers={[{elem: child(), event: props.triggerType ?? "hover", setOpen}]}
+        anchor={props.anchor ?? child()}
+        content={content()}
+        inheritWidth={props.inheritWidth}
+        class={props.class}
+      />
+    )
+  })
 
   return <>{child()}</>
 }

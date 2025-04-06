@@ -43,10 +43,9 @@ function convertStyle(style: CSSStyle): StylesArg {
   const convertedStyle = Object.entries(style!).map(([key, value]) => {
     const hyphenKey = key.replace(/[A-Z]/g, x => "-" + x.toLowerCase())
     const convertedKey = typeof value === "object" ? key : hyphenKey
-    const convertedValue = hyphenKey === "font-weight" ? String(value)
-      : typeof value === "object" ? convertStyle(value)
-        : typeof value === "number" ? `${value}px`
-          : value
+    const convertedValue = typeof value === "object" ? convertStyle(value)
+      : typeof value === "number" && hyphenKey !== "font-weight" ? `${value}px`
+        : value
     return [convertedKey, convertedValue]
   })
   return Object.fromEntries(convertedStyle)
