@@ -1,6 +1,5 @@
-import {css as cssInner} from "solid-styled-components"
-import {Properties, StandardProperties} from "csstype"
-import {getEntries} from "./utils"
+import {css as cssInner, StylesArg} from "solid-styled-components"
+import {StandardProperties} from "csstype"
 
 type NumPropNames = "height"
   | "width"
@@ -38,19 +37,25 @@ type NumProps = {[K in NumPropNames]?: number | string}
 
 type ClassName = string
 
-// NOTE: `Properties` includes svg properties as well as HTML properties
-type Style = Omit<StandardProperties, NumPropNames> | NumProps | {[x: string]: Style}
+export type CSSStyle = Omit<StandardProperties, NumPropNames> | NumProps | {[x: string]: CSSStyle}
 
-export function css(...styles: (ClassName | Style | undefined)[]) {
-  const className = styles.filter(x => x).map(style => {
-    if (typeof style === "string") return style
-    const newStyle = getEntries(style as any).map(([key, value]) => {
-      // TODO: recursive
-      const hyphenKey = (key as any).replace(/[A-Z]/g, (x: any) => "-" + x.toLowerCase())
-      const stringValue = typeof value === "number" ? value + "px" : value
-      return [hyphenKey, stringValue]
-    })
-    return cssInner(Object.fromEntries(newStyle))
-  }).join(" ")
-  return {class: className}
+function convertStyle(style: CSSStyle): StylesArg {
+  const convertedStyle = Object.entries(style!).map(([key, value]) => {
+    const hyphenKey = key.replace(/[A-Z]/g, x => "-" + x.toLowerCase())
+    const convertedKey = typeof value === "object" ? key : hyphenKey
+    const convertedValue = hyphenKey === "font-weight" ? String(value)
+      : typeof value === "object" ? convertStyle(value)
+        : typeof value === "number" ? `${value}px`
+          : value
+    return [convertedKey, convertedValue]
+  })
+  return Object.fromEntries(convertedStyle)
+}
+
+export function css(...styles: (ClassName | CSSStyle | undefined)[]) {
+  const classNames = styles.filter(x => x).map(style => {
+    return typeof style === "string" ? style : cssInner(convertStyle(style!))
+  })
+
+  return {class: classNames.join(" ")}
 }

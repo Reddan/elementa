@@ -230,7 +230,7 @@ export function SimplePopover(
   const child = () => childInner()?.valueOf() as Element
   const content = () => unwrap(props.content, {close})
 
-  ;(
+  void (
     <StatefulPopover
       when={open()}
       placement={props.placement ?? "mouse"}
