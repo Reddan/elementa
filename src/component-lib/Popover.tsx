@@ -2,11 +2,11 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/popoverTargetAction
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/popoverTargetElement
 
-import {children, createEffect, createRenderEffect, createSignal, JSX, onCleanup, onMount, Show} from "solid-js"
+import {children, createEffect, createMemo, createRenderEffect, createSignal, JSX, onCleanup, onMount, Show} from "solid-js"
 import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
 import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/hook-lib"
-import {forEachArray, round, unwrap} from "~/utils"
+import {forEachArray, mapObject, round, unwrap} from "~/utils"
 
 export type Trigger = {
   elem: Element | undefined
@@ -48,7 +48,7 @@ const appear = (placement: PopoverPlacement) => keyframes`
 
 const preventClick = keyframes`from {pointer-events: none;}`
 
-const PopoverContainer = styled.div<{"prop:cssprops": StyleProps}>(({["prop:cssprops"]: props}) => `
+const PopoverContainer = styled.div<{"prop:css": StyleProps}>(({["prop:css"]: props}) => `
   position: absolute;
   z-index: 4;
   box-shadow: 0 1px 45px 0 rgba(137, 137, 137, 0.16);
@@ -85,6 +85,8 @@ export function Popover(
   const width = () => props.inheritWidth ? `${anchorSize().width}px` : undefined
   const initialPlacement = props.placement
 
+  const px = (map: Record<string, number>) => mapObject(map, value => `${round(value, 1)}px`)
+
   const position = () => {
     const {x: mouseX, y: mouseY} = targetedMouse()
     const {x: anchorX, y: anchorY} = anchorPosition()
@@ -96,33 +98,33 @@ export function Popover(
       const fitsOnScreen = defaultPosition + popoverWidth < document.body.clientWidth
       const left = fitsOnScreen ? defaultPosition : mouseX - 10 - popoverWidth
       const top = mouseY + 10
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     } else if (props.placement === "left") {
       const right = document.body.clientWidth - anchorX + 5
       const top = anchorY + anchorHeight / 2 - popoverHeight / 2
-      return {right: round(right, 1) + "px", top: round(top, 1) + "px"}
+      return px({right, top})
     } else if (props.placement === "right") {
       const left = anchorX + anchorWidth + 5
       const top = anchorY + anchorHeight / 2 - popoverHeight / 2
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     } else if (props.placement === "top") {
       const left = Math.max(10, anchorX + anchorWidth / 2 - popoverWidth / 2)
       const top = anchorY - popoverHeight - 5
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     } else if (props.placement === "bottom") {
       const defaultPosition = anchorY + anchorHeight + 5
       const fitsOnScreen = defaultPosition + popoverHeight < document.body.clientHeight
       const left = Math.max(10, anchorX + anchorWidth / 2 - popoverWidth / 2)
       const top = fitsOnScreen ? defaultPosition : anchorY - popoverHeight - 5
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     } else if (props.placement === "bottom-left") {
       const left = anchorX + anchorWidth - popoverWidth
       const top = anchorY + anchorHeight + 5
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     } else if (props.placement === "bottom-right") {
       const left = anchorX
       const top = anchorY + anchorHeight + 5
-      return {left: round(left, 1) + "px", top: round(top, 1) + "px"}
+      return px({left, top})
     }
   }
 
@@ -137,7 +139,7 @@ export function Popover(
       <PopoverContainer
         ref={setPopover}
         class={props.class}
-        prop:cssprops={{placement: initialPlacement, evasive: !!props.evasive}}
+        prop:css={{placement: initialPlacement, evasive: !!props.evasive}}
         style={{...position(), width: width()}}
         children={props.content}
       />
@@ -221,14 +223,15 @@ export function SimplePopover(
   },
 ): JSX.Element {
   const [openState, setOpen] = createSignal(false)
-  const open = () => openState() && !props.disabled
+  const disabled = createMemo(() => !!props.disabled)
+  const open = () => openState() && !disabled()
   const close = () => setOpen(false)
   const childInner = children(() => unwrap(props.children, {close, open}))
   const child = () => childInner()?.valueOf() as Element
   const content = () => unwrap(props.content, {close})
 
   createRenderEffect(() => {
-    if (!props.disabled) (
+    if (!disabled()) (
       <StatefulPopover
         when={open()}
         placement={props.placement ?? "mouse"}

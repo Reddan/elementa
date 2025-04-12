@@ -72,12 +72,16 @@ export function Modal(
       <Portal mount={portalElem}>
         <ModalContainer
           class={props.containerClass}
-          onMouseDown={evt => evt.target === evt.currentTarget && closeBy().includes("click") && props.onClose?.()}
-        >
-          <ModalBody class={props.class} style={props.style}>
-            {props.children}
-          </ModalBody>
-        </ModalContainer>
+          onMouseDown={evt => {
+            if (evt.target === evt.currentTarget && closeBy().includes("click"))
+              props.onClose?.()
+          }}
+          children={(
+            <ModalBody class={props.class} style={props.style}>
+              {props.children}
+            </ModalBody>
+          )}
+        />
       </Portal>
     </Show>
   )

@@ -1,4 +1,5 @@
 import {createRenderEffect, JSX, mapArray} from "solid-js"
+import {assert, isFunction} from "./utils"
 
 // TODO: ZipFor component (keyed by first array)
 
@@ -24,4 +25,13 @@ export function getJSXRect(children: JSX.Element): {width: number, height: numbe
   const {width, height} = container.getBoundingClientRect()
   document.body.removeChild(container)
   return {width, height}
+}
+
+export function mergeRefs<T extends Element>(...refs: (T | ((elem: T) => void) | undefined)[]) {
+  return (elem: T) => {
+    for (const ref of refs) {
+      assert(isFunction(ref) || !ref)
+      ref?.(elem)
+    }
+  }
 }

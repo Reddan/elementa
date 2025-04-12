@@ -39,12 +39,22 @@ type ClassName = string
 
 export type CSSStyle = Omit<StandardProperties, NumPropNames> | NumProps | {[x: string]: CSSStyle}
 
+const nonPixelProps = new Set([
+  "flex-grow",
+  "flex-shrink",
+  "flex",
+  "font-weight",
+  "line-height",
+  "opacity",
+  "z-index",
+])
+
 function convertStyle(style: CSSStyle): StylesArg {
   const convertedStyle = Object.entries(style!).map(([key, value]) => {
     const hyphenKey = key.replace(/[A-Z]/g, x => "-" + x.toLowerCase())
     const convertedKey = typeof value === "object" ? key : hyphenKey
     const convertedValue = typeof value === "object" ? convertStyle(value)
-      : typeof value === "number" && hyphenKey !== "font-weight" ? `${value}px`
+      : typeof value === "number" && !nonPixelProps.has(hyphenKey) ? `${value}px`
         : value
     return [convertedKey, convertedValue]
   })
