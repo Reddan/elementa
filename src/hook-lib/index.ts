@@ -25,10 +25,7 @@ export function usePrevious<T>(value: () => T): () => T {
 }
 
 export function useMostRecent<T>(value: () => T): () => T {
-  return createMemo<T>(prev => {
-    const v = value()
-    return v !== undefined && v !== null ? v : prev
-  }, value())
+  return createMemo<T>(prev => value() ?? prev, value())
 }
 
 export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefined): () => XY {

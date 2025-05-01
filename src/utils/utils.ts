@@ -107,9 +107,13 @@ export function removeValue<T>(array: T[], value: T): T[] {
   return array.filter(x => x !== value)
 }
 
-export function toggleValue<T>(values: T[], toggleValue: T): T[] {
-  const filtered = values.filter(val => val !== toggleValue)
-  return filtered.length === values.length ? [...values, toggleValue] : filtered
+export function toggleValue<T>(array: T[], value: T): T[] {
+  const filtered = array.filter(val => val !== value)
+  return filtered.length === array.length ? [...array, value] : filtered
+}
+
+export function replace<T>(array: T[], search: T, value: T) {
+  return array.map(x => x === search ? value : x)
 }
 
 export function mapObject<K extends string, T, U>(obj: Record<K, T>, fn: (value: T, key: K) => U): Record<K, U> {
