@@ -45,7 +45,7 @@ export function Dropdown<T>(
       placement={props.placement ?? "bottom"}
       inheritWidth
       triggerType="mousedown"
-      {...css({padding: "10px 0"})}
+      {...css({padding: "10px 0", overflow: "scroll"})}
       children={(
         <Input class={(props.class ?? "") + " input"}>
           <span>{currentAlias() || "Invalid value"}</span>

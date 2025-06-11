@@ -45,8 +45,8 @@ export function dropNulls<T>(array: (T | null | undefined)[]): T[] {
   return array.filter(notNull)
 }
 
-export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null>): Record<T, U> {
-  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null)) as Record<T, U>
+export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null | undefined>): Record<T, U> {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null)) as Record<T, U>
 }
 
 export function range(start: number, end: number): number[] {
@@ -172,7 +172,7 @@ export function downloadPrompt(filename: string, data: Blob | string): void {
   URL.revokeObjectURL(elem.href)
 }
 
-export function readTextFiles(mimeTypes: string[], multiple = false, encoding = "UTF-8"): Promise<string[]> {
+export function readFiles(mimeTypes: string[] = ["*"], multiple = false): Promise<File[]> {
   return new Promise(resolve => {
     const input = document.createElement("input")
     input.type = "file"
@@ -180,18 +180,31 @@ export function readTextFiles(mimeTypes: string[], multiple = false, encoding = 
     input.multiple = multiple
     input.click()
     input.oncancel = () => resolve([])
-    input.onchange = () => {
-      const files = Array.from(input.files!)
-      const fileContents = files.map(file => {
-        return new Promise<string>(resolve => {
-          const reader = new FileReader()
-          reader.readAsText(file, encoding)
-          reader.onload = evt => {
-            resolve(evt.target!.result as string)
-          }
-        })
-      })
-      Promise.all(fileContents).then(resolve)
-    }
+    input.onchange = () => resolve(Array.from(input.files!))
   })
+}
+
+export async function readTextFiles(mimeTypes: string[], multiple = false, encoding = "UTF-8"): Promise<string[]> {
+  const files = await readFiles(mimeTypes, multiple)
+  const fileContents = files.map(file => {
+    return new Promise<string>(resolve => {
+      const reader = new FileReader()
+      reader.readAsText(file, encoding)
+      reader.onload = evt => resolve(evt.target!.result as string)
+    })
+  })
+  return await Promise.all(fileContents)
+}
+
+export function readJSONFiles(multiple = false): Promise<any[]> {
+  return readTextFiles(["application/json"], multiple).then(jsons => jsons.map(x => JSON.parse(x)))
+}
+
+export function timeout(fn: (...x: any) => void, delay: number): () => void {
+  if (delay <= 0) {
+    fn()
+    return () => {}
+  }
+  const timeoutId = setTimeout(fn, delay)
+  return () => clearTimeout(timeoutId)
 }

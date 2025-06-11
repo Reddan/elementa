@@ -7,8 +7,8 @@ export function post<T = any>(path: string, body: any, headers?: Record<string, 
   return res.then(res => res.json())
 }
 
-function getInner(path: string, query?: Record<string, string>, headers?: Record<string, string>): Promise<Response> {
-  const params = String(new URLSearchParams(query ?? {}))
+function getInner(path: string, query?: Record<string, string | number | boolean>, headers?: Record<string, string>): Promise<Response> {
+  const params = String(new URLSearchParams((query ?? {}) as Record<string, string>))
   const fullUrl = path + (params && `?${params}`)
   return fetch(fullUrl, {method: "GET", headers})
 }
