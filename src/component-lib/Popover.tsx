@@ -20,7 +20,7 @@ type ForwardProps = {class?: string, inheritWidth?: boolean}
 type StyleProps = {placement: PopoverPlacement, evasive: boolean}
 type Element = HTMLElement | SVGElement
 
-const portalElem = document.getElementById("portal-root")!
+const portalElem = (typeof document === "undefined" ? null : document.getElementById("portal-root"))!
 const triggeredPopoverByEvent = new WeakMap<MouseEvent, {}>()
 
 function getParentMountElem(elem?: HTMLElement | SVGElement): HTMLElement {

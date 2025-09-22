@@ -1,4 +1,4 @@
-const style = document.documentElement.style
+const style = (typeof document === "undefined" ? null : document.documentElement.style)!
 const valueByVar: Record<string, string> = {}
 
 export function createCssvars(prefix: string) {

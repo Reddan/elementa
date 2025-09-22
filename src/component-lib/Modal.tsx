@@ -3,7 +3,7 @@ import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
 import {useKeyPress} from "~/hook-lib"
 
-const portalElem = document.getElementById("portal-root")!
+const portalElem = (typeof document === "undefined" ? null : document.getElementById("portal-root"))!
 
 const fadeIn = keyframes`
   0% {opacity: 0;}
