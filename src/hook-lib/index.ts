@@ -1,4 +1,4 @@
-import {createMemo, createRenderEffect, createSignal, on, onCleanup} from "solid-js"
+import {createEffect, createMemo, createRenderEffect, createSignal, on, onCleanup} from "solid-js"
 import equals from "fast-deep-equal"
 import {round} from "~/utils"
 import {useEventListener} from "./useEventListener"
@@ -26,6 +26,21 @@ export function usePrevious<T>(value: () => T): () => T {
 
 export function useMostRecent<T>(value: () => T): () => T {
   return createMemo<T>(prev => value() ?? prev, value())
+}
+
+export function createDebounced<T>(source: () => T, delay = 300): () => T {
+  const [debounced, setDebounced] = createSignal<T>(source())
+  let timeout: number
+
+  createEffect(() => {
+    const value = source()
+    clearTimeout(timeout)
+    timeout = setTimeout(() => setDebounced(value as any), delay)
+  })
+
+  onCleanup(() => clearTimeout(timeout))
+
+  return debounced
 }
 
 export function useScrollPosition(elem: () => HTMLElement | SVGElement | undefined): () => XY {

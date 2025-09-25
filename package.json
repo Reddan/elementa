@@ -1,6 +1,6 @@
 {
   "name": "elementa",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'",
-    "pub": "npm run build && npm version patch && npm publish"
+    "pub": "npm run build && npm publish"
   },
   "devDependencies": {
     "@solid-primitives/list": "^0.1.0",
