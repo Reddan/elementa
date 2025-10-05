@@ -1,5 +1,10 @@
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
+type ElementType<A extends readonly unknown[]> = A[number]
+
+export function identity<T>(x: T): T {
+  return x
+}
 
 export function assert(condition: any, message = "Assertion failed"): asserts condition {
   if (!condition) throw new Error(message)
@@ -61,12 +66,11 @@ export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[]
   })
 }
 
-const sortNumbers = (a?: number, b?: number) => a! - b!
+const sortFn = (a: any, b: any) => Number(a > b) - Number(a < b)
 
-export function sort<T extends any[]>(array: T): T {
-  const type = typeof array.find(notNull)
-  const sortFn = isEither(type, ["boolean", "number", "bigint"]) ? sortNumbers : undefined
-  return array.toSorted(sortFn) as T
+export function sort<T extends any[]>(array: T, cb: (x: ElementType<T>) => any = identity, reverse = false): T {
+  const sorted = array.toSorted((a, b) => sortFn(cb(a), cb(b)))
+  return (reverse ? sorted.toReversed() : sorted) as T
 }
 
 export function unique<T extends any[]>(array: T): T {
