@@ -10,6 +10,11 @@ export function assert(condition: any, message = "Assertion failed"): asserts co
   if (!condition) throw new Error(message)
 }
 
+export function asserted<T>(x: T | null | undefined): T {
+  assert(x != null)
+  return x
+}
+
 export function isFunction(x: unknown): x is Function {
   return typeof x === "function"
 }
@@ -69,8 +74,8 @@ export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[]
 const sortFn = (a: any, b: any) => Number(a > b) - Number(a < b)
 
 export function sort<T extends any[]>(array: T, cb: (x: ElementType<T>) => any = identity, reverse = false): T {
-  const sorted = array.toSorted((a, b) => sortFn(cb(a), cb(b)))
-  return (reverse ? sorted.toReversed() : sorted) as T
+  const direction = reverse ? -1 : 1
+  return array.toSorted((a, b) => sortFn(cb(a), cb(b)) * direction) as T
 }
 
 export function unique<T extends any[]>(array: T): T {
