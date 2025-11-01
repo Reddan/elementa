@@ -2,6 +2,9 @@ type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
 type ElementType<A extends readonly unknown[]> = A[number]
 
+type CxArgument = Primitive | Record<string, any> | CxArgumentArray
+type CxArgumentArray = CxArgument[]
+
 export function identity<T>(x: T): T {
   return x
 }
@@ -150,6 +153,20 @@ export function groupFromEntries<K extends string, T>(entries: Iterable<readonly
 
 export function trimString(str: string): string {
   return str.trim().replace(/ +/g, " ")
+}
+
+export function cx(...args: CxArgumentArray): string {
+  return args.map((arg): string => {
+    if (typeof arg === "string") {
+      return arg
+    } else if (typeof arg !== "object" || arg === null) {
+      return ""
+    } else if (Array.isArray(arg)) {
+      return cx(...arg)
+    } else {
+      return Object.keys(arg).map(key => arg[key] && key).filter(x => x).join(" ")
+    }
+  }).filter(x => x).join(" ")
 }
 
 export function getSearch(searchQuery: string): (candidateText: string) => boolean {
