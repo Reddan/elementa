@@ -1,6 +1,6 @@
 {
   "name": "elementa",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
@@ -14,6 +14,12 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/Reddan/elementa.git"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils/index.js",
+    "./utils/*": "./dist/utils/*.js",
+    "./component-lib/*": "./dist/component-lib/*.js"
   },
   "scripts": {
     "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'",
