@@ -128,6 +128,16 @@ export function replace<T>(array: T[], search: T, value: T) {
   return array.map(x => x === search ? value : x)
 }
 
+export function partition<T>(array: [boolean, T][]): [T[], T[]] {
+  const trueValues: T[] = []
+  const falseValues: T[] = []
+  for (const [predicate, value] of array) {
+    const arr = predicate ? trueValues : falseValues
+    arr.push(value)
+  }
+  return [trueValues, falseValues]
+}
+
 export function mapObject<K extends string, T, U>(obj: Record<K, T>, fn: (value: T, key: K) => U): Record<K, U> {
   const result = {} as Record<K, U>
   for (const key of getKeys(obj))
@@ -164,7 +174,7 @@ export function cx(...args: CxArgumentArray): string {
     } else if (Array.isArray(arg)) {
       return cx(...arg)
     } else {
-      return Object.keys(arg).map(key => arg[key] && key).filter(x => x).join(" ")
+      return Object.keys(arg).filter(key => arg[key] && key).join(" ")
     }
   }).filter(x => x).join(" ")
 }
@@ -185,6 +195,10 @@ export function getSearch(searchQuery: string): (candidateText: string) => boole
   return candidateText => {
     return queryTerms.every(term => candidateText.includes(term))
   }
+}
+
+export function sleep(duration: number): Promise<void> {
+  return new Promise(resolve => setTimeout(() => resolve(), duration))
 }
 
 export function downloadPrompt(filename: string, data: Blob | string): void {
@@ -219,7 +233,7 @@ export async function readTextFiles(mimeTypes: string[], multiple = false, encod
       reader.onload = evt => resolve(evt.target!.result as string)
     })
   })
-  return await Promise.all(fileContents)
+  return Promise.all(fileContents)
 }
 
 export function readJSONFiles(multiple = false): Promise<any[]> {
