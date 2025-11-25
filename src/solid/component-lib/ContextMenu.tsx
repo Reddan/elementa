@@ -1,5 +1,6 @@
 import {createMemo, JSX, Show} from "solid-js"
-import {css, removeValue, unwrap} from "~/utils"
+import {removeValue, unwrap} from "~/utils"
+import {css} from "../css"
 import {ListItems} from "./ListItems"
 import {SimplePopover} from "./Popover"
 

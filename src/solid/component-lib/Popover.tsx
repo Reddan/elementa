@@ -5,8 +5,9 @@
 import {children, createEffect, createMemo, createRenderEffect, createSignal, JSX, onCleanup, onMount, Show} from "solid-js"
 import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
-import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/hook-lib"
-import {forEachArray, mapObject, round, unwrap} from "~/utils"
+import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/solid/hook-lib"
+import {forEachArray} from "~/solid/utils"
+import {mapObject, round, unwrap} from "~/utils"
 
 export type Trigger = {
   elem: Element | undefined

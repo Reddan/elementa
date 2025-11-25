@@ -5,6 +5,8 @@ type ElementType<A extends readonly unknown[]> = A[number]
 type CxArgument = Primitive | Record<string, any> | CxArgumentArray
 type CxArgumentArray = CxArgument[]
 
+export function noop(): void {}
+
 export function identity<T>(x: T): T {
   return x
 }

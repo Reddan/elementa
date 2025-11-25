@@ -1,7 +1,7 @@
 import {createEffect, JSX, Show} from "solid-js"
 import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
-import {useKeyPress} from "~/hook-lib"
+import {useKeyPress} from "~/solid/hook-lib"
 
 const portalElem = (typeof document === "undefined" ? null : document.getElementById("portal-root"))!
 

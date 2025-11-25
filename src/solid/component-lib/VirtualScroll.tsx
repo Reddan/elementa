@@ -1,7 +1,7 @@
 import {children, createMemo, createSignal, For, JSX} from "solid-js"
 import {List} from "@solid-primitives/list"
 import equals from "fast-deep-equal"
-import {isFunction, range} from "../utils"
+import {isFunction, range} from "~/utils"
 
 type Arrayable<T> = T | T[]
 

@@ -1,5 +1,5 @@
 import {createRenderEffect, JSX, mapArray} from "solid-js"
-import {assert, isFunction} from "./utils"
+import {assert, isFunction} from "../utils/utils"
 
 // TODO: ZipFor component (keyed by first array)
 

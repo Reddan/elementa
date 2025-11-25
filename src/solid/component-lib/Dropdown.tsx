@@ -1,7 +1,8 @@
 import {createMemo} from "solid-js"
 import {styled} from "solid-styled-components"
-import {ListItems, PopoverPlacement, SimplePopover} from "~/component-lib"
-import {css} from "~/utils"
+import {css} from "../css"
+import {ListItems} from "./ListItems"
+import {PopoverPlacement, SimplePopover} from "./Popover"
 
 const Input = styled.div`
   display: flex;

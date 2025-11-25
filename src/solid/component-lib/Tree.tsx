@@ -1,5 +1,5 @@
 import {createMemo, createRenderEffect, createSignal, For, JSX, on, Show} from "solid-js"
-import {groupFromEntries} from "../utils"
+import {groupFromEntries} from "~/utils"
 
 type FolderProps<T> = {
   items: () => T[]

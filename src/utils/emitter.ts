@@ -1,9 +1,5 @@
 export class Emitter<T> {
-  subscribers: Set<(value: T) => void>
-
-  constructor() {
-    this.subscribers = new Set()
-  }
+  subscribers = new Set<(value: T) => void>()
 
   emit(value: T): void {
     this.subscribers.forEach(callback => callback(value))

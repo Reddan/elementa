@@ -1,6 +1,6 @@
 {
   "name": "elementa",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
@@ -17,9 +17,10 @@
   },
   "exports": {
     ".": "./dist/index.js",
+    "./solid": "./dist/solid/index.js",
+    "./solid/component-lib/*": "./dist/solid/component-lib/*.js",
     "./utils": "./dist/utils/index.js",
-    "./utils/*": "./dist/utils/*.js",
-    "./component-lib/*": "./dist/component-lib/*.js"
+    "./utils/*": "./dist/utils/*.js"
   },
   "scripts": {
     "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'",
