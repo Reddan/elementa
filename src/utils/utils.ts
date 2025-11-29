@@ -20,6 +20,14 @@ export function asserted<T>(x: T | null | undefined): T {
   return x
 }
 
+export function triable<T>(cb: () => T): [T, undefined] | [undefined, object] {
+  try {
+    return [cb(), undefined]
+  } catch (err) {
+    return [undefined, err!]
+  }
+}
+
 export function isFunction(x: unknown): x is Function {
   return typeof x === "function"
 }

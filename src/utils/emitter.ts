@@ -14,14 +14,19 @@ export class Emitter<T> {
     return () => void this.subscribers.delete(callback)
   }
 
-  wait = (predicate?: (value: T) => boolean): Promise<T> => {
-    return new Promise(resolve => {
+  wait = (predicate?: (value: T) => boolean, ttl = 0): Promise<T> => {
+    return new Promise((resolve, reject) => {
       const unsub = this.listen(value => {
         if (!predicate || predicate(value)) {
           unsub()
+          clearTimeout(timeout)
           resolve(value)
         }
       })
+      const timeout = ttl && setTimeout(() => {
+        unsub()
+        reject(new Error("Emitter.wait() timed out"))
+      }, ttl)
     })
   }
 }
