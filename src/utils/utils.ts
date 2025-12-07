@@ -2,8 +2,8 @@ type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
 type ElementType<A extends readonly unknown[]> = A[number]
 
-type CxArgument = Primitive | Record<string, any> | CxArgumentArray
-type CxArgumentArray = CxArgument[]
+export type ClassValue = Primitive | Record<string, any> | ClassArray
+export type ClassArray = ClassValue[]
 
 export function noop(): void {}
 
@@ -175,7 +175,7 @@ export function trimString(str: string): string {
   return str.trim().replace(/ +/g, " ")
 }
 
-export function cx(...args: CxArgumentArray): string {
+export function cx(...args: ClassArray): string {
   return args.map((arg): string => {
     if (typeof arg === "string") {
       return arg
