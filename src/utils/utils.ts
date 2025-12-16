@@ -1,3 +1,5 @@
+import {Prettify} from "~/types"
+
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
 type ElementType<A extends readonly unknown[]> = A[number]
@@ -148,6 +150,10 @@ export function partition<T>(array: [boolean, T][]): [T[], T[]] {
   return [trueValues, falseValues]
 }
 
+export function pick<T extends {}, K extends readonly (keyof T)[]>(obj: T, keys: K): Prettify<Pick<T, K[number]>> {
+  return Object.fromEntries(keys.map(key => [key, obj[key]])) as Pick<T, K[number]>
+}
+
 export function mapObject<K extends string, T, U>(obj: Record<K, T>, fn: (value: T, key: K) => U): Record<K, U> {
   const result = {} as Record<K, U>
   for (const key of getKeys(obj))
@@ -169,6 +175,12 @@ export function groupFromEntries<K extends string, T>(entries: Iterable<readonly
     map[key].push(value)
   }
   return map
+}
+
+export function isEmpty(obj: object): boolean {
+  for (const _ in obj)
+    return false
+  return true
 }
 
 export function trimString(str: string): string {
