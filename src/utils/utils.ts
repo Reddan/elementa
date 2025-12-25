@@ -13,8 +13,10 @@ export function identity<T>(x: T): T {
   return x
 }
 
-export function assert(condition: any, message = "Assertion failed"): asserts condition {
-  if (!condition) throw new Error(message)
+export function assert(condition: any, error: Error | string = "Assertion failed"): asserts condition {
+  if (!condition) {
+    throw error instanceof Error ? error : new Error(error)
+  }
 }
 
 export function asserted<T>(x: T | null | undefined): T {
@@ -39,11 +41,8 @@ export function isGeneratorFunction<T>(x: unknown): x is () => Generator<T> {
 }
 
 export function createId(): string {
-  if (window.isSecureContext) {
-    return crypto.randomUUID().replaceAll("-", "")
-  }
-  const values = [...crypto.getRandomValues(new Uint8Array(32))]
-  return values.map(val => (val & 15).toString(16)).join("")
+  const bytes = [...crypto.getRandomValues(new Uint8Array(16))]
+  return bytes.map(x => x.toString(16).padStart(2, "0")).join("")
 }
 
 export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...args: A): T {
@@ -74,6 +73,10 @@ export function dropObjectNulls<T extends string, U>(obj: Record<T, U | null | u
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null)) as Record<T, U>
 }
 
+export function subtract<K extends string, O extends K>(values: K[], omit: O[]): Exclude<K, O>[] {
+  return values.filter((x): x is Exclude<K, O> => !omit.includes(<O>x))
+}
+
 export function range(start: number, end: number): number[] {
   return Array.from({length: end - start}, (_, i) => start + i)
 }
@@ -86,11 +89,20 @@ export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[]
   })
 }
 
-const sortFn = (a: any, b: any) => Number(a > b) - Number(a < b)
+function compare(a: any, b: any) {
+  if (!Array.isArray(a)) {
+    return Number(a > b) - Number(a < b)
+  }
+  for (const [x, y] of zip(a, b)) {
+    const compare = Number(x > y) - Number(x < y)
+    if (compare !== 0) return compare
+  }
+  return 0
+}
 
 export function sort<T extends any[]>(array: T, cb: (x: ElementType<T>) => any = identity, reverse = false): T {
   const direction = reverse ? -1 : 1
-  return array.toSorted((a, b) => sortFn(cb(a), cb(b)) * direction) as T
+  return array.toSorted((a, b) => compare(cb(a), cb(b)) * direction) as T
 }
 
 export function unique<T extends any[]>(array: T): T {
@@ -150,8 +162,12 @@ export function partition<T>(array: [boolean, T][]): [T[], T[]] {
   return [trueValues, falseValues]
 }
 
-export function pick<T extends {}, K extends readonly (keyof T)[]>(obj: T, keys: K): Prettify<Pick<T, K[number]>> {
-  return Object.fromEntries(keys.map(key => [key, obj[key]])) as Pick<T, K[number]>
+export function pick<T extends {}, K extends keyof T>(obj: T, keys: K[]): Prettify<Pick<T, K>> {
+  return Object.fromEntries(keys.map(key => [key, obj[key]])) as Pick<T, K>
+}
+
+export function omit<T extends {}, K extends keyof T>(obj: T, keys: K[]): Prettify<Omit<T, K>> {
+  return Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as any))) as Omit<T, K>
 }
 
 export function mapObject<K extends string, T, U>(obj: Record<K, T>, fn: (value: T, key: K) => U): Record<K, U> {

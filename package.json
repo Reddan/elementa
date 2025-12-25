@@ -1,15 +1,15 @@
 {
   "name": "elementa",
-  "version": "1.0.32",
+  "version": "1.1.0",
   "author": "Hampus Hallman",
   "description": "",
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "./utils/*": "./dist/utils/*.js"
   },
   "scripts": {
-    "build": "tsup && eslint dist/ --fix --rule '@/prefer-const: off' --rule '@/no-var: off'",
+    "build": "tsup",
     "pub": "npm run build && npm publish"
   },
   "devDependencies": {

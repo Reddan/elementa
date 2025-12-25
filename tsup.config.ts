@@ -6,7 +6,7 @@ export default defineConfig({
   esbuildPlugins: [solidPlugin()],
   entry: ["src/**/*.ts", "src/**/*.tsx"],
   target: "esnext",
-  format: ["esm", "cjs"],
+  format: ["esm"],
   dts: true,
   sourcemap: true,
 })
