@@ -89,7 +89,7 @@ export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[]
   })
 }
 
-function compare(a: any, b: any) {
+function compare(a: any, b: any): number {
   if (!Array.isArray(a)) {
     return Number(a > b) - Number(a < b)
   }
@@ -162,6 +162,14 @@ export function partition<T>(array: [boolean, T][]): [T[], T[]] {
   return [trueValues, falseValues]
 }
 
+export function chunk<T>(array: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size))
+  }
+  return chunks
+}
+
 export function pick<T extends {}, K extends keyof T>(obj: T, keys: K[]): Prettify<Pick<T, K>> {
   return Object.fromEntries(keys.map(key => [key, obj[key]])) as Pick<T, K>
 }
@@ -215,6 +223,11 @@ export function cx(...args: ClassArray): string {
       return Object.keys(arg).filter(key => arg[key] && key).join(" ")
     }
   }).filter(x => x).join(" ")
+}
+
+export function throwable<T extends any>(value: {data: T, error: null} | {error: any}): T {
+  if (value.error) throw value.error
+  return (value as any).data
 }
 
 export function getSearch(searchQuery: string): (candidateText: string) => boolean {
