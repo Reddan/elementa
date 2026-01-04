@@ -152,6 +152,10 @@ export function replace<T>(array: T[], search: T, value: T) {
   return array.map(x => x === search ? value : x)
 }
 
+export function filterBy<T>(arr: T[], mask: boolean[]): T[] {
+  return arr.filter((_, i) => mask[i])
+}
+
 export function partition<T>(array: [boolean, T][]): [T[], T[]] {
   const trueValues: T[] = []
   const falseValues: T[] = []

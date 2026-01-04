@@ -1,13 +1,20 @@
 import hash from "object-hash"
 import {zip} from "./utils"
 
-export const dedupedBatch = <T, U>(callback: (inputs: T[]) => Promise<U[]>) => {
+type Options = {
+  cache?: boolean
+  size?: number
+  timeout?: number
+}
+
+export const dedupedBatch = <T, U>(callback: (inputs: T[]) => Promise<U[]>, options: Options = {}) => {
   type Resolve = (output: U) => void
   type Reject = (reason?: any) => void
-  let handleBulkTimeout: number
-  let inputByHash: Record<string, T> = {}
+  const {cache = false, size, timeout} = options
+  const inputByHash = new Map<string, T>()
   const onOutputByHash: Record<string, [Resolve, Reject][]> = {}
   const outputByHash: Record<string, U> = {}
+  let handleBulkTimeout: number
 
   return (input: T) => new Promise<U>((resolve, reject) => {
     const valueHash = hash(input ?? null)
@@ -15,15 +22,15 @@ export const dedupedBatch = <T, U>(callback: (inputs: T[]) => Promise<U[]>) => {
       return resolve(outputByHash[valueHash]!)
     }
     if (!onOutputByHash[valueHash]) {
-      inputByHash[valueHash] = input
+      inputByHash.set(valueHash, input)
       clearTimeout(handleBulkTimeout)
+      const hashes = inputByHash.keys().toArray()
+      const inputs = inputByHash.values().toArray()
       handleBulkTimeout = setTimeout(() => {
-        const hashes = Object.keys(inputByHash)
-        const inputs = hashes.map(valueHash => inputByHash[valueHash]!)
-        inputByHash = {}
+        hashes.forEach(valueHash => inputByHash.delete(valueHash))
         void callback(inputs).then(outputs => {
           for (const [valueHash, output] of zip(hashes, outputs)) {
-            if (output) {
+            if (cache) {
               outputByHash[valueHash] = output
             }
             onOutputByHash[valueHash]!.forEach(([resolve]) => resolve(output))
@@ -35,7 +42,11 @@ export const dedupedBatch = <T, U>(callback: (inputs: T[]) => Promise<U[]>) => {
             delete onOutputByHash[valueHash]
           }
         })
-      })
+      }, timeout)
+      if (size && inputByHash.size === size) {
+        handleBulkTimeout = 0
+        inputByHash.clear()
+      }
       onOutputByHash[valueHash] = []
     }
     onOutputByHash[valueHash]!.push([resolve, reject])
