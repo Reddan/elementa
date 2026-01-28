@@ -34,8 +34,8 @@ export function useKeyPress(
 
   createEffect(() => {
     const k = unwrap(key)
-    listenersByKey[k] = listenersByKey[k] ?? []
-    listenersByKey[k]!.push(self)
+    listenersByKey[k] ??= []
+    listenersByKey[k].push(self)
     onCleanup(() => {
       listenersByKey[k] = listenersByKey[k]!.filter(x => x !== self)
     })

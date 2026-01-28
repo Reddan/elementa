@@ -205,6 +205,13 @@ export function groupFromEntries<K extends string, T>(entries: Iterable<readonly
   return map
 }
 
+export function counts<T>(entries: Iterable<T>): Map<T, number> {
+  const map = new Map<T, number>()
+  for (const value of entries)
+    map.set(value, (map.get(value) ?? 0) + 1)
+  return map
+}
+
 export function isEmpty(obj: object): boolean {
   for (const _ in obj)
     return false
