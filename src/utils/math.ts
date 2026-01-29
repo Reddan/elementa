@@ -1,3 +1,5 @@
+import {peekIterable} from "./utils"
+
 export type TypedArray =
   | Int8Array
   | Uint8Array
@@ -30,10 +32,11 @@ export function clamp(num: number, lower: number, upper: number): number {
   return num > upper ? upper : num < lower ? lower : num
 }
 
-export function sum(array: NumberArray): number {
+export function sum(...arrays: Iterable<number>[]): number {
   let sum = 0
-  for (const number of array)
-    sum += number
+  for (const array of arrays)
+    for (const number of array)
+      sum += number
   return sum
 }
 
@@ -42,19 +45,20 @@ export function mean(array: NumberArray): number {
   return len && sum(array) / len
 }
 
-export function min(array: NumberArray): number {
+export function min(array: Iterable<number>): number {
   return extent(array)[0]
 }
 
-export function max(array: NumberArray): number {
+export function max(array: Iterable<number>): number {
   return extent(array)[1]
 }
 
-export function extent(array: NumberArray): [number, number] {
-  if (!array.length) return [0, 0]
+export function extent(array: Iterable<number>): [number, number] {
+  const [isEmpty, iterable] = peekIterable(array)
+  if (isEmpty) return [0, 0]
   let min = Infinity
   let max = -Infinity
-  for (const num of array) {
+  for (const num of iterable) {
     if (num < min) min = num
     if (num > max) max = num
   }

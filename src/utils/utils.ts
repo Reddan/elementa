@@ -212,6 +212,20 @@ export function counts<T>(entries: Iterable<T>): Map<T, number> {
   return map
 }
 
+export function* chain<T>(...iters: Iterable<T>[]): Generator<T> {
+  for (const iter of iters) yield* iter
+}
+
+export function peekIterable<T>(values: Iterable<T>): [empty: boolean, IteratorObject<T>] {
+  const iter = Iterator.from(values)
+  const {value, done} = iter.next()
+  if (done) {
+    return [true, iter]
+  } else {
+    return [false, chain([value], iter)]
+  }
+}
+
 export function isEmpty(obj: object): boolean {
   for (const _ in obj)
     return false
