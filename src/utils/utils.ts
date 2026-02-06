@@ -2,6 +2,7 @@ import {Prettify} from "~/types"
 
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
+type Transposed<T extends Record<string, readonly unknown[]>> = {[K in keyof T]: T[K][number]}[]
 type ElementType<A extends readonly unknown[]> = A[number]
 
 export type ClassValue = Primitive | Record<string, any> | ClassArray
@@ -57,7 +58,7 @@ export function flatObjects<T extends Record<any, any>>(objects: T[]): T {
   return Object.assign({}, ...objects)
 }
 
-export function isEither<T extends Primitive, U extends T>(value: T, compare: U[]): value is U {
+export function isEither<T extends Primitive, U extends T>(value: T, compare: readonly U[]): value is U {
   return compare.includes(<U>value)
 }
 
@@ -205,6 +206,14 @@ export function groupFromEntries<K extends string, T>(entries: Iterable<readonly
   return map
 }
 
+export function transpose<T extends Record<string, readonly unknown[]>>(input: T): Transposed<T> {
+  const keys = Object.keys(input) as (keyof T)[]
+  const len = keys.length && input[keys[0]!]!.length
+  return Array.from({length: len}, (_, i) => {
+    return Object.fromEntries(keys.map(k => [k, input[k]![i]])) as Transposed<T>[number]
+  })
+}
+
 export function counts<T>(entries: Iterable<T>): Map<T, number> {
   const map = new Map<T, number>()
   for (const value of entries)
@@ -212,8 +221,8 @@ export function counts<T>(entries: Iterable<T>): Map<T, number> {
   return map
 }
 
-export function* chain<T>(...iters: Iterable<T>[]): Generator<T> {
-  for (const iter of iters) yield* iter
+export function chain<T>(...iters: Iterable<T>[]): IteratorObject<T> {
+  return iters.values().flatMap(x => x)
 }
 
 export function peekIterable<T>(values: Iterable<T>): [empty: boolean, IteratorObject<T>] {

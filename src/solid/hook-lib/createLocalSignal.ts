@@ -25,7 +25,7 @@ function createLocalSignalInner<T>(key: string, initState: T, debounce = 0): Sig
 
 export function createLocalSignal<T>(key: string, initState: T, debounce = 0): Signal<T> {
   // TODO: allow signal keys
-  return localSignalMap[key] ?? (localSignalMap[key] = createLocalSignalInner(key, initState, debounce))
+  return localSignalMap[key] ??= createLocalSignalInner(key, initState, debounce)
 }
 
 export function createLocalStore<T extends object>(key: string, initState: T): [Store<T>, SetStoreFunction<T>] {

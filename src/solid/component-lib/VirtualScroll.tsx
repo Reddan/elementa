@@ -36,31 +36,32 @@ export function VirtualScroll(
     <div
       onScroll={evt => setScrollPos(evt.target.scrollTop)}
       style={{position: "relative", width: "100%", height: `${props.height}px`, overflow: "scroll"}}
-    >
-      <div style={{width: "100%", height: `${props.itemCount * props.itemSize + offset()}px`}}>
-        <For each={childs()}>
-          {child => {
-            if (!isFunction(child)) {
-              return child
-            }
+      children={(
+        <div style={{width: "100%", height: `${props.itemCount * props.itemSize + offset()}px`}}>
+          <For each={childs()}>
+            {child => {
+              if (!isFunction(child)) {
+                return child
+              }
 
-            // NOTE: <List> could be more effective by simply preserving the initial order of child elements as it doesn't matter where in the DOM they are placed.
-            // That way, the only changes occurs to elements going in and out of the viewport.
-            return (
-              <List each={range(...extent())}>
-                {index => {
-                  const style = () => ({
-                    position: "absolute",
-                    top: `${index() * props.itemSize + offset()}px`,
-                    height: `${props.itemSize}px`,
-                  })
-                  return child({index, style})
-                }}
-              </List>
-            )
-          }}
-        </For>
-      </div>
-    </div>
+              // NOTE: <List> could be more effective by simply preserving the initial order of child elements as it doesn't matter where in the DOM they are placed.
+              // That way, the only changes occurs to elements going in and out of the viewport.
+              return (
+                <List each={range(...extent())}>
+                  {index => {
+                    const style = () => ({
+                      position: "absolute",
+                      top: `${index() * props.itemSize + offset()}px`,
+                      height: `${props.itemSize}px`,
+                    })
+                    return child({index, style})
+                  }}
+                </List>
+              )
+            }}
+          </For>
+        </div>
+      )}
+    />
   )
 }
