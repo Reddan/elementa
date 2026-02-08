@@ -2,7 +2,7 @@ import {Prettify} from "~/types"
 
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
-type Transposed<T extends Record<string, readonly unknown[]>> = {[K in keyof T]: T[K][number]}[]
+type Transposed<T extends Record<string, readonly unknown[]>> = {[K in keyof T]: T[K][number]}
 type ElementType<A extends readonly unknown[]> = A[number]
 
 export type ClassValue = Primitive | Record<string, any> | ClassArray
@@ -82,12 +82,20 @@ export function range(start: number, end: number): number[] {
   return Array.from({length: end - start}, (_, i) => start + i)
 }
 
-export function zip<Arrays extends any[][]>(...arrays: Arrays): Zipped<Arrays>[] {
-  const length = Math.min(...arrays.map(array => array.length))
+export function* zip<Arrays extends any[][]>(...arrays: Arrays): Generator<Zipped<Arrays>> {
   const indices = Array.from({length: arrays.length}, (_, j) => j)
-  return Array.from({length}, (_, i) => {
-    return indices.map(j => arrays[j]![i]!) as Zipped<Arrays>
-  })
+  const len = arrays.length && Math.min(...arrays.map(array => array.length))
+  for (let i = 0; i < len; i++) {
+    yield indices.map(j => arrays[j]![i]!) as Zipped<Arrays>
+  }
+}
+
+export function* transpose<T extends Record<string, readonly unknown[]>>(input: T): Generator<Transposed<T>> {
+  const keys = Object.keys(input) as (keyof T)[]
+  const len = keys.length && input[keys[0]!]!.length
+  for (let i = 0; i < len; i++) {
+    yield Object.fromEntries(keys.map(k => [k, input[k]![i]])) as Transposed<T>
+  }
 }
 
 function compare(a: any, b: any): number {
@@ -204,14 +212,6 @@ export function groupFromEntries<K extends string, T>(entries: Iterable<readonly
     map[key].push(value)
   }
   return map
-}
-
-export function transpose<T extends Record<string, readonly unknown[]>>(input: T): Transposed<T> {
-  const keys = Object.keys(input) as (keyof T)[]
-  const len = keys.length && input[keys[0]!]!.length
-  return Array.from({length: len}, (_, i) => {
-    return Object.fromEntries(keys.map(k => [k, input[k]![i]])) as Transposed<T>[number]
-  })
 }
 
 export function counts<T>(entries: Iterable<T>): Map<T, number> {
