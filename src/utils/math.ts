@@ -32,11 +32,11 @@ export function clamp(num: number, lower: number, upper: number): number {
   return num > upper ? upper : num < lower ? lower : num
 }
 
-export function sum(...arrays: Iterable<number>[]): number {
+export function sum(...arrays: Iterable<number | boolean>[]): number {
   let sum = 0
   for (const array of arrays)
     for (const number of array)
-      sum += number
+      sum += number as number
   return sum
 }
 
