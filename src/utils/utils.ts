@@ -3,7 +3,6 @@ import {Prettify} from "~/types"
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
 type Transposed<T extends Record<string, readonly unknown[]>> = {[K in keyof T]: T[K][number]}
-type ElementType<A extends readonly unknown[]> = A[number]
 
 export type ClassValue = Primitive | Record<string, any> | ClassArray
 export type ClassArray = ClassValue[]
@@ -42,8 +41,8 @@ export function isGeneratorFunction<T>(x: unknown): x is () => Generator<T> {
 }
 
 export function createId(): string {
-  const bytes = [...crypto.getRandomValues(new Uint8Array(16))]
-  return bytes.map(x => x.toString(16).padStart(2, "0")).join("")
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  return Array.from(bytes, x => x.toString(16).padStart(2, "0")).join("")
 }
 
 export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...args: A): T {
@@ -53,6 +52,14 @@ export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...ar
 export const getKeys: <K extends keyof any>(obj: Partial<Record<K, unknown>>) => K[] = Object.keys
 
 export const getEntries: <K extends keyof any, V>(obj: Partial<Record<K, V>>) => [K, V][] = Object.entries
+
+export function toObject<K extends string, T>(m: Map<K, T>): Record<K, T> {
+  return Object.fromEntries(m.entries()) as Record<K, T>
+}
+
+export function toArray<T>(iter: Iterable<T>): T[] {
+  return Array.isArray(iter) ? iter : [...iter]
+}
 
 export function flatObjects<T extends Record<any, any>>(objects: T[]): T {
   return Object.assign({}, ...objects)
@@ -78,7 +85,11 @@ export function subtract<K extends string, O extends K>(values: K[], omit: O[]):
   return values.filter((x): x is Exclude<K, O> => !omit.includes(<O>x))
 }
 
-export function range(start: number, end: number): number[] {
+export function range(start: number, end?: number): number[] {
+  if (end == null) {
+    end = start
+    start = 0
+  }
   return Array.from({length: end - start}, (_, i) => start + i)
 }
 
@@ -109,16 +120,16 @@ function compare(a: any, b: any): number {
   return 0
 }
 
-export function sort<T extends any[]>(array: T, cb: (x: ElementType<T>) => any = identity, reverse = false): T {
+export function sort<T>(iter: Iterable<T>, cb: (x: T) => any = identity, reverse = false): T[] {
   const direction = reverse ? -1 : 1
-  return array.toSorted((a, b) => compare(cb(a), cb(b)) * direction) as T
+  return toArray(iter).toSorted((a, b) => compare(cb(a), cb(b)) * direction)
 }
 
-export function unique<T extends any[]>(array: T): T {
-  return [...new Set(array)] as T
+export function unique<T>(array: Iterable<T>): T[] {
+  return [...new Set(array)]
 }
 
-export function sortUnique<T extends any[]>(array: T): T {
+export function sortUnique<T>(array: Iterable<T>): T[] {
   return sort(unique(array))
 }
 
