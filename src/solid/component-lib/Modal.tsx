@@ -24,8 +24,7 @@ const ModalContainer = styled.div`
   width: 100vw;
   padding: 20px 0;
   z-index: 4;
-  justify-content: center;
-  align-items: center;
+  place-items: center;
   overflow: scroll;
   background: rgba(0, 0, 0, 0.4);
   animation: ${fadeIn} 150ms;
@@ -72,14 +71,15 @@ export function Modal(
       <Portal mount={portalElem}>
         <ModalContainer
           class={props.containerClass}
-          onMouseDown={evt => {
-            if (evt.target === evt.currentTarget && closeBy().includes("click"))
-              props.onClose?.()
-          }}
+          onMouseDown={() => closeBy().includes("click") && props.onClose?.()}
           children={(
-            <ModalBody class={props.class} style={props.style}>
-              {props.children}
-            </ModalBody>
+            <ModalBody
+              class={props.class}
+              style={props.style}
+              onClick={evt => evt.stopPropagation()}
+              onMouseDown={evt => evt.stopPropagation()}
+              children={props.children}
+            />
           )}
         />
       </Portal>

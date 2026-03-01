@@ -58,7 +58,7 @@ export function toObject<K extends string, T>(m: Map<K, T>): Record<K, T> {
 }
 
 export function toArray<T>(iter: Iterable<T>): T[] {
-  return Array.isArray(iter) ? iter : [...iter]
+  return Array.isArray(iter) ? iter : Array.from(iter)
 }
 
 export function flatObjects<T extends Record<any, any>>(objects: T[]): T {
@@ -126,7 +126,7 @@ export function sort<T>(iter: Iterable<T>, cb: (x: T) => any = identity, reverse
 }
 
 export function unique<T>(array: Iterable<T>): T[] {
-  return [...new Set(array)]
+  return Array.from(new Set(array))
 }
 
 export function sortUnique<T>(array: Iterable<T>): T[] {
