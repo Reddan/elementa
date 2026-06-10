@@ -1,4 +1,4 @@
-import {Prettify} from "~/types"
+import {Prettify, Unwrapable} from "~/types"
 
 type Primitive = string | number | boolean | undefined | null
 type Zipped<T extends any[][]> = {[K in keyof T]: T[K][number]}
@@ -45,7 +45,7 @@ export function createId(): string {
   return Array.from(bytes, x => x.toString(16).padStart(2, "0")).join("")
 }
 
-export function unwrap<T, A extends any[]>(value: T | ((...args: A) => T), ...args: A): T {
+export function unwrap<T, A extends any[]>(value: Unwrapable<A, T>, ...args: A): T {
   return isFunction(value) ? value(...args) : value
 }
 

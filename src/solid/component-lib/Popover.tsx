@@ -7,7 +7,7 @@ import {Portal} from "solid-js/web"
 import {keyframes, styled} from "solid-styled-components"
 import {mouseHeld, mousePosition, useElementPosition, useElementSize, useEventListener, useKeyPress} from "~/solid/hook-lib"
 import {forEachArray} from "~/solid/utils"
-import {mapObject, round, unwrap} from "~/utils"
+import {cx, mapObject, round, unwrap} from "~/utils"
 
 export type Trigger = {
   elem: Element | undefined
@@ -163,7 +163,7 @@ export function StatefulPopover(
   const mount = document.createElement("div")
 
   createRenderEffect(() => {
-    mount.className = ["popover", ...props.triggers.map(trigger => `popover-${trigger.event}`)].join(" ")
+    mount.className = cx("popover", props.triggers.map(trigger => `popover-${trigger.event}`))
   })
 
   forEachArray(() => props.triggers, ({elem: trigger, event, setOpen}) => {
@@ -246,4 +246,21 @@ export function SimplePopover(
   })
 
   return <>{child()}</>
+}
+
+export function Tooltip(
+  props: ForwardProps & {
+    children: JSX.Element
+    content: JSX.Element
+    placement?: PopoverPlacement
+  },
+) {
+  return (
+    <SimplePopover
+      disabled={!props.content}
+      triggerType="hover"
+      {...props}
+      placement={props.placement || "top"}
+    />
+  )
 }
